@@ -26,6 +26,11 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
     return <Navigate to="/rejected" replace />;
   }
 
+  // Redirect archived students
+  if (role === 'student' && status === 'archived' && window.location.pathname !== '/archived') {
+    return <Navigate to="/archived" replace />;
+  }
+
   if (adminOnly && role !== 'admin') {
     return <Navigate to="/dashboard" replace />;
   }

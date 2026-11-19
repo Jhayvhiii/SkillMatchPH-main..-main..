@@ -9,6 +9,7 @@ import UniversityManagement from './pages/admin/UniversityManagement'
 import ProgramManagement from './pages/admin/ProgramManagement'
 import PendingPage from './pages/PendingPage'
 import RejectedPage from './pages/RejectedPage'
+import ArchivedPage from './pages/ArchivedPage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import { useAuth } from './context/AuthContext'
 import StudentLayout from './components/student/StudentLayout'
@@ -57,7 +58,9 @@ function App() {
           ) : (
             role === 'admin' ? <Navigate to="/admin" replace /> : (
               status === 'pending' ? <Navigate to="/pending" replace /> : (
-                status === 'rejected' ? <Navigate to="/rejected" replace /> : <Navigate to="/dashboard" replace />
+                status === 'rejected' ? <Navigate to="/rejected" replace /> : (
+                  status === 'archived' ? <Navigate to="/archived" replace /> : <Navigate to="/dashboard" replace />
+                )
               )
             )
           )
@@ -73,6 +76,12 @@ function App() {
         <Route path="/rejected" element={
           <ProtectedRoute>
             {role === 'admin' ? <Navigate to="/admin" replace /> : <RejectedPage />}
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/archived" element={
+          <ProtectedRoute>
+            {role === 'admin' ? <Navigate to="/admin" replace /> : <ArchivedPage />}
           </ProtectedRoute>
         } />
 

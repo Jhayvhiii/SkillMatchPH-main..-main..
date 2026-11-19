@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, useDeferredValue, memo, useMemo } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Search, RefreshCw, X, Loader, Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Users, Clock, CheckCircle } from 'lucide-react';
+import { Search, RefreshCw, X, Loader, Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Users, Clock, CheckCircle, Archive, ArchiveRestore } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
 import { useLocation, useSearchParams } from 'react-router-dom';
@@ -86,10 +86,12 @@ const StudentManagement = () => {
   // Filters & State
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearchTerm = useDeferredValue(searchTerm);
-  const [activeTab, setActiveTab] = useState('all'); // 'all' | 'needs_approval' | 'active'
+  const [activeTab, setActiveTab] = useState('all'); // 'all' | 'needs_approval' | 'active' | 'archived'
   const [strandFilter, setStrandFilter] = useState('ALL');
   const [highlightedStudentId, setHighlightedStudentId] = useState(null);
   const [approvingId, setApprovingId] = useState(null);
+  const [archivingId, setArchivingId] = useState(null);
+  const [confirmArchive, setConfirmArchive] = useState(null); // { id, name, action: 'archive' | 'unarchive' }
 
   // Pagination (Fixes infinite scrolling!)
   const [currentPage, setCurrentPage] = useState(1);
@@ -112,14 +114,17 @@ const StudentManagement = () => {
   const counts = useMemo(() => {
     let pending = 0;
     let approved = 0;
+    let archived = 0;
     students.forEach((s) => {
       if (s.status === 'pending') pending++;
+      else if (s.status === 'archived') archived++;
       else approved++;
     });
     return {
-      all: students.length,
+      all: students.length - archived,
       needs_approval: pending,
-      active: approved
+      active: approved,
+      archived
     };
   }, [students]);
 
@@ -172,13 +177,34 @@ const StudentManagement = () => {
     }
   }, [mutate]);
 
+  // Archive / Unarchive action
+  const handleArchiveToggle = useCallback(async (id, newStatus) => {
+    setArchivingId(id);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ status: newStatus })
+        .eq('id', id);
+
+      if (error) throw error;
+      mutate(prev => prev.map(s => (s.id === id ? { ...s, status: newStatus } : s)), false);
+    } catch (err) {
+      alert(`Error ${newStatus === 'archived' ? 'archiving' : 'restoring'} student: ` + err.message);
+    } finally {
+      setArchivingId(null);
+      setConfirmArchive(null);
+    }
+  }, [mutate]);
+
   // Filtered dataset
   const filteredStudents = useMemo(() => {
     const lowerQuery = deferredSearchTerm.toLowerCase();
     return students.filter((student) => {
       // Tab filter
+      if (activeTab === 'archived' && student.status !== 'archived') return false;
       if (activeTab === 'needs_approval' && student.status !== 'pending') return false;
-      if (activeTab === 'active' && student.status === 'pending') return false;
+      if (activeTab === 'active' && student.status !== 'approved') return false;
+      if (activeTab === 'all' && student.status === 'archived') return false;
 
       // Strand filter
       if (strandFilter !== 'ALL' && student.shs_strand !== strandFilter) return false;
@@ -351,6 +377,38 @@ const StudentManagement = () => {
                 {counts.active}
               </span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('archived')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.45rem 0.9rem',
+                borderRadius: '8px',
+                border: 'none',
+                background: activeTab === 'archived' ? '#6b7280' : 'transparent',
+                color: activeTab === 'archived' ? '#ffffff' : 'var(--text-secondary)',
+                fontWeight: activeTab === 'archived' ? 700 : 500,
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <Archive size={15} /> Archived
+              {counts.archived > 0 && (
+                <span style={{
+                  fontSize: '0.75rem',
+                  padding: '0.1rem 0.45rem',
+                  borderRadius: '999px',
+                  background: activeTab === 'archived' ? 'rgba(0,0,0,0.2)' : 'var(--glass-border)',
+                  color: activeTab === 'archived' ? '#ffffff' : 'var(--text-primary)'
+                }}>
+                  {counts.archived}
+                </span>
+              )}
+            </button>
           </div>
 
           {/* Strand Quick Filter Dropdown */}
@@ -425,7 +483,9 @@ const StudentManagement = () => {
             <AnimatePresence mode="popLayout">
               {paginatedStudents.map((student, i) => {
                 const isPending = student.status === 'pending';
+                const isArchived = student.status === 'archived';
                 const isCurrentApproving = approvingId === student.id;
+                const isCurrentArchiving = archivingId === student.id;
 
                 return (
                   <motion.tr
@@ -438,7 +498,8 @@ const StudentManagement = () => {
                     exit={{ opacity: 0, scale: 0.98 }}
                     transition={{ duration: 0.15, delay: i * 0.015 }}
                     style={{
-                      background: isPending ? 'rgba(251, 191, 36, 0.02)' : 'transparent'
+                      background: isPending ? 'rgba(251, 191, 36, 0.02)' : isArchived ? 'rgba(107, 114, 128, 0.04)' : 'transparent',
+                      opacity: isArchived ? 0.7 : 1
                     }}
                   >
                     <td style={{ fontWeight: 600, padding: '1rem 1.25rem' }}>
@@ -496,38 +557,94 @@ const StudentManagement = () => {
                       {new Date(student.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                     </td>
                     <td style={{ textAlign: 'right', paddingRight: '1.25rem' }}>
-                      {isPending ? (
-                        <button
-                          type="button"
-                          onClick={() => handleApprove(student.id)}
-                          disabled={isCurrentApproving}
-                          className="icon-btn"
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.35rem',
-                            color: '#000',
-                            background: 'var(--accent-teal)',
-                            border: 'none',
-                            fontSize: '0.78rem',
-                            fontWeight: 700,
-                            padding: '0.38rem 0.85rem',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            boxShadow: '0 2px 8px rgba(0, 242, 254, 0.25)',
-                            transition: 'all 0.2s ease'
-                          }}
-                        >
-                          {isCurrentApproving ? (
-                            <Loader size={13} className="animate-spin" />
-                          ) : (
-                            <Check size={13} />
-                          )}
-                          Approve
-                        </button>
-                      ) : (
-                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>—</span>
-                      )}
+                      <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end', alignItems: 'center' }}>
+                        {isPending && (
+                          <button
+                            type="button"
+                            onClick={() => handleApprove(student.id)}
+                            disabled={isCurrentApproving}
+                            className="icon-btn"
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.35rem',
+                              color: '#000',
+                              background: 'var(--accent-teal)',
+                              border: 'none',
+                              fontSize: '0.78rem',
+                              fontWeight: 700,
+                              padding: '0.38rem 0.85rem',
+                              borderRadius: '8px',
+                              cursor: 'pointer',
+                              boxShadow: '0 2px 8px rgba(0, 242, 254, 0.25)',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            {isCurrentApproving ? (
+                              <Loader size={13} className="animate-spin" />
+                            ) : (
+                              <Check size={13} />
+                            )}
+                            Approve
+                          </button>
+                        )}
+
+                        {isArchived ? (
+                          <button
+                            type="button"
+                            onClick={() => setConfirmArchive({ id: student.id, name: `${student.first_name} ${student.last_name}`, action: 'unarchive' })}
+                            disabled={isCurrentArchiving}
+                            className="icon-btn"
+                            title="Restore from archive"
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.35rem',
+                              color: '#ffffff',
+                              background: 'var(--success)',
+                              border: 'none',
+                              fontSize: '0.78rem',
+                              fontWeight: 700,
+                              padding: '0.38rem 0.85rem',
+                              borderRadius: '8px',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            {isCurrentArchiving ? (
+                              <Loader size={13} className="animate-spin" />
+                            ) : (
+                              <ArchiveRestore size={13} />
+                            )}
+                            Restore
+                          </button>
+                        ) : !isPending && (
+                          <button
+                            type="button"
+                            onClick={() => setConfirmArchive({ id: student.id, name: `${student.first_name} ${student.last_name}`, action: 'archive' })}
+                            disabled={isCurrentArchiving}
+                            className="icon-btn"
+                            title="Archive student"
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.35rem',
+                              color: 'var(--text-secondary)',
+                              background: 'transparent',
+                              border: '1px solid var(--glass-border)',
+                              fontSize: '0.78rem',
+                              fontWeight: 600,
+                              padding: '0.38rem 0.75rem',
+                              borderRadius: '8px',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            <Archive size={13} />
+                            Archive
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </motion.tr>
                 );
@@ -662,6 +779,117 @@ const StudentManagement = () => {
           </div>
         </div>
       </div>
+
+      {/* ─── Archive Confirmation Modal ────────────────────────────────────── */}
+      <AnimatePresence>
+        {confirmArchive && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0, 0, 0, 0.6)',
+              backdropFilter: 'blur(4px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999,
+              padding: '1rem'
+            }}
+            onClick={() => setConfirmArchive(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="glass-card"
+              style={{
+                width: 'min(460px, 100%)',
+                padding: '2rem',
+                textAlign: 'center'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{
+                width: '58px',
+                height: '58px',
+                margin: '0 auto',
+                display: 'grid',
+                placeItems: 'center',
+                borderRadius: '50%',
+                background: confirmArchive.action === 'archive'
+                  ? 'rgba(107, 114, 128, 0.12)'
+                  : 'rgba(34, 197, 94, 0.1)',
+                color: confirmArchive.action === 'archive' ? '#6b7280' : 'var(--success)'
+              }}>
+                {confirmArchive.action === 'archive' ? <Archive size={28} /> : <ArchiveRestore size={28} />}
+              </div>
+
+              <h2 style={{ margin: '1rem 0 0.65rem', fontSize: '1.45rem' }}>
+                {confirmArchive.action === 'archive' ? 'Archive Student?' : 'Restore Student?'}
+              </h2>
+
+              <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6' }}>
+                {confirmArchive.action === 'archive'
+                  ? <>Are you sure you want to archive <strong style={{ color: 'var(--text-primary)' }}>{confirmArchive.name}</strong>? They will no longer be able to access the platform until restored.</>
+                  : <>Restore <strong style={{ color: 'var(--text-primary)' }}>{confirmArchive.name}</strong> from the archive? Their account will be set back to approved status.</>
+                }
+              </p>
+
+              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setConfirmArchive(null)}
+                  style={{
+                    padding: '0.6rem 1.25rem',
+                    borderRadius: '10px',
+                    border: '1px solid var(--glass-border)',
+                    background: 'var(--glass-bg)',
+                    color: 'var(--text-primary)',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleArchiveToggle(
+                    confirmArchive.id,
+                    confirmArchive.action === 'archive' ? 'archived' : 'approved'
+                  )}
+                  disabled={archivingId === confirmArchive.id}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    padding: '0.6rem 1.25rem',
+                    borderRadius: '10px',
+                    border: 'none',
+                    background: confirmArchive.action === 'archive' ? '#6b7280' : 'var(--success)',
+                    color: '#ffffff',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  {archivingId === confirmArchive.id ? (
+                    <Loader size={14} className="animate-spin" />
+                  ) : confirmArchive.action === 'archive' ? (
+                    <Archive size={14} />
+                  ) : (
+                    <ArchiveRestore size={14} />
+                  )}
+                  {confirmArchive.action === 'archive' ? 'Archive' : 'Restore'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
