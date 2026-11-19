@@ -1,0 +1,771 @@
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.auth-container {
+  display: flex;
+  width: 100%;
+  max-width: 1150px;
+  min-height: 650px;
+  background: rgba(255, 255, 255, 0.01);
+  border-radius: 32px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.auth-container.signup-mode {
+  max-width: 1350px;
+  min-height: 750px;
+}
+
+/* Branding Side */
+.branding-section {
+  flex: 0.9;
+  padding: 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(112, 0, 255, 0.1) 0%, rgba(0, 245, 255, 0.05) 100%);
+  position: relative;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.signup-mode .branding-section {
+  flex: 0.55;
+  padding-left: 5rem;
+}
+
+.branding-content {
+  z-index: 2;
+}
+
+.logo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.logo-icon-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.brand-name {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(to right, #fff, var(--accent-teal));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.tagline {
+  font-size: 3.5rem;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.description {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+/* Form Side */
+.form-section {
+  flex: 1.1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.signup-mode .form-section {
+  flex: 1.45;
+}
+
+.form-wrapper {
+  width: 100%;
+  max-width: 420px;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.signup-mode .form-wrapper {
+  max-width: 700px;
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(30px);
+  border: 1px solid var(--glass-border);
+  padding: 2.5rem;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.form-header {
+  margin-bottom: 2rem;
+}
+
+.form-header h3 {
+  font-size: 1.75rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.form-header p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  color: var(--text-secondary);
+}
+
+.input-group input, .input-group select {
+  width: 100%;
+  padding: 0.875rem 1rem 0.875rem 3rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  appearance: none;
+}
+
+.input-group.has-password-toggle input {
+  padding-right: 3rem;
+}
+
+.password-visibility-toggle {
+  position: absolute;
+  right: 0.75rem;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.password-visibility-toggle:hover {
+  color: var(--text-primary);
+  background: var(--field-bg-hover);
+}
+
+.password-visibility-toggle:focus-visible {
+  outline: 2px solid var(--accent-teal);
+  outline-offset: 1px;
+}
+
+.input-group input:focus, .input-group select:focus {
+  outline: none;
+  border-color: var(--accent-teal);
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 4px rgba(0, 245, 255, 0.1);
+}
+
+.input-group .custom-select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.2rem;
+  padding-right: 3rem;
+}
+
+.custom-select option {
+  background: #1a0f1e;
+  color: #fff;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.full-width {
+  grid-column: span 2;
+}
+
+.error-message {
+  color: #ff4d4d;
+  font-size: 0.875rem;
+  margin: 0;
+  text-align: center;
+}
+
+.form-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* The question sits on one line and the recovery action on the next, so the
+   link keeps its 44px touch target without reading as a stray phrase wrapped
+   out of the sentence. */
+.password-help {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-align: right;
+  line-height: 1.5;
+  text-wrap: balance;
+}
+
+.password-help-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-teal);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  opacity: 0.85;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.password-help-link:hover:not(:disabled),
+.password-help-link:focus-visible {
+  opacity: 1;
+}
+
+.password-help-link:focus-visible {
+  outline: 2px solid var(--accent-teal);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.password-help-link:disabled {
+  cursor: wait;
+}
+
+.contact-success-message {
+  margin: 0;
+  color: var(--success);
+  font-size: 0.875rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.admin-contact-card {
+  width: 100%;
+  padding: 2.5rem;
+}
+
+.admin-contact-card .auth-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.recovery-choice {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0 0 0.5rem;
+  padding: 0;
+  border: 0;
+}
+
+.recovery-choice legend {
+  margin-bottom: 0.4rem;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.recovery-choice label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  background: var(--field-bg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.recovery-choice label:hover {
+  border-color: rgba(0, 242, 254, 0.45);
+}
+
+.recovery-choice label.active {
+  border-color: var(--accent-teal);
+  background: rgba(0, 242, 254, 0.08);
+}
+
+.recovery-choice input {
+  margin: 0.15rem 0 0;
+  accent-color: var(--accent-teal);
+}
+
+.recovery-choice span {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.recovery-choice strong {
+  color: var(--text-primary);
+  font-size: 0.88rem;
+}
+
+.recovery-choice small {
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.submit-btn {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: linear-gradient(to right, var(--accent-violet), var(--accent-teal));
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 245, 255, 0.3);
+}
+
+.submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+.toggle-auth {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.toggle-link {
+  background: none;
+  border: none;
+  color: var(--accent-teal);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.toggle-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-invite-link {
+  margin-top: 0.65rem;
+  font-size: 0.76rem;
+}
+
+.admin-invite-link a,
+.admin-invite-link button {
+  color: var(--accent-teal);
+  text-decoration: none;
+}
+
+.admin-invite-link button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Administrator invitation registration */
+.admin-register-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+}
+
+.admin-register-card {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-signup-mode .form-wrapper {
+  max-width: 700px;
+}
+
+.admin-register-mark {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  border-radius: 16px;
+  background: rgba(0, 242, 254, 0.08);
+  color: var(--accent-teal);
+}
+
+.admin-register-card .form-header h1,
+.admin-register-success h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.85rem;
+}
+
+.admin-register-success p {
+  margin-bottom: 1.5rem;
+  color: var(--text-secondary);
+}
+
+.admin-register-success p strong {
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.admin-verification-form {
+  width: min(430px, 100%);
+  margin: 0 auto;
+}
+
+.admin-register-success .submit-btn {
+  width: 100%;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.admin-register-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-top: 1.5rem;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+
+.admin-register-back:hover {
+  color: var(--accent-teal);
+}
+
+.admin-register-back-button {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Public email-link recovery reuses auth theme tokens. */
+.recovery-wrapper {
+  width: 100%;
+  max-width: 560px;
+  min-width: 0;
+}
+
+.recovery-card .form-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+}
+
+.recovery-card {
+  overflow-wrap: anywhere;
+}
+
+.recovery-card .form-header p,
+.recovery-note {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.recovery-field-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.recovery-card .input-group input {
+  min-height: 48px;
+  min-width: 0;
+  background: var(--field-bg);
+  color: var(--text-primary);
+}
+
+.recovery-input input {
+  padding-left: 1rem;
+}
+
+.recovery-card button,
+.recovery-card .admin-register-back,
+.password-help-link {
+  min-height: 44px;
+}
+
+.recovery-card .recovery-choice label {
+  min-height: 48px;
+}
+
+.recovery-card :is(button, a, input):focus-visible,
+.recovery-card [tabindex="-1"]:focus,
+.password-help-link:focus-visible {
+  outline: 2px solid var(--accent-teal);
+  outline-offset: 4px;
+}
+
+.recovery-card .contact-success-message,
+.recovery-card .error-message {
+  margin-block: 1rem;
+  line-height: 1.6;
+}
+
+.recovery-card button:disabled {
+  cursor: wait;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recovery-card *,
+  .recovery-card *::before,
+  .recovery-card *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Responsive Refinement */
+.email-verification-card {
+  text-align: center;
+}
+
+.email-verification-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.25rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--accent-teal);
+  background: rgba(0, 242, 254, 0.1);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+}
+
+.email-verification-card .form-header strong {
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.email-verification-copy,
+.email-verification-status {
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.email-verification-status {
+  padding: 0.75rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  background: var(--field-bg);
+  font-size: 0.88rem;
+}
+
+.verification-code-label {
+  display: block;
+  margin-bottom: 0.55rem;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.verification-code-input {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  outline: 0;
+  background: var(--field-bg);
+  color: var(--text-primary);
+  font: 700 1.65rem/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  text-align: center;
+  letter-spacing: 0.3em;
+  caret-color: var(--accent-teal);
+}
+
+.verification-code-input:focus {
+  border-color: var(--accent-teal);
+  box-shadow: 0 0 0 4px rgba(0, 245, 255, 0.1);
+}
+
+.verification-resend-link,
+.verification-back-link {
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--accent-teal);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.verification-resend-link {
+  margin-top: 0.75rem;
+}
+
+.verification-back-link {
+  margin-top: 0.15rem;
+}
+
+.verification-resend-link:hover,
+.verification-back-link:hover {
+  text-decoration: underline;
+}
+
+.verification-resend-link:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 968px) {
+  .auth-page {
+    padding: 1rem;
+  }
+
+  .auth-container {
+    flex-direction: column-reverse;
+    max-width: 100%;
+    border-radius: 20px;
+    min-height: auto;
+  }
+
+  .branding-section {
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .branding-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .logo-wrapper {
+    margin-bottom: 1rem;
+  }
+
+  .logo-icon {
+    font-size: 2rem;
+  }
+
+  .brand-name {
+    font-size: 1.5rem;
+  }
+
+  .tagline {
+    font-size: 2.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .description {
+    font-size: 1rem;
+    margin: 0 auto 1.5rem auto;
+  }
+
+  .form-section {
+    padding: 2rem 1.5rem;
+  }
+
+  .glass-card {
+    padding: 2rem 1.5rem;
+    border-radius: 16px;
+  }
+
+  .form-header h3 {
+    font-size: 1.5rem;
+  }
+
+  .path-illustration {
+    display: block;
+    width: 100%;
+    max-width: 280px;
+    height: 80px;
+    margin-top: 1rem;
+  }
+
+  .path-illustration svg {
+    height: 100%;
+  }
+}
